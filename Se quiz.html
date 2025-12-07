@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Schematic → Layout Practice Quiz (63 Q)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 16px;
+      background: #f5f5f5;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #555;
+      margin-bottom: 16px;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+    .count-control {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      justify-content: center;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+    }
+    button {
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      background: #fff;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+    button:hover {
+      background: #e9e9e9;
+    }
+    .hint {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #777;
+      margin-bottom: 12px;
+    }
+    .questions-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .question-card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      border: 1px solid #ddd;
+    }
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: baseline;
+      margin-bottom: 4px;
+    }
+    .question-title {
+      font-weight: 600;
+      max-width: 75%;
+    }
+    .question-original {
+      font-size: 0.8rem;
+      color: #777;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .question-type {
+      font-size: 0.8rem;
+      color: #777;
+      margin-top: 2px;
+    }
+    .question-image {
+      margin: 6px 0;
+      text-align: center;
+    }
+    .question-image img {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      background: #fafafa;
+      padding: 4px;
+    }
+    .options {
+      margin: 6px 0;
+    }
+    .option {
+      display: flex;
+      align-items: center;
+      font-size: 0.93rem;
+      margin-bottom: 4px;
+    }
+    .option input {
+      margin-right: 6px;
+    }
+    .result {
+      font-size: 0.82rem;
+      margin-top: 2px;
+    }
+    .correct {
+      border-color: #4caf50;
+    }
+    .incorrect {
+      border-color: #f44336;
+    }
+    .result.correct-text {
+      color: #2e7d32;
+    }
+    .result.incorrect-text {
+      color: #c62828;
+    }
+    .overall-score {
+      text-align: center;
+      font-weight: 600;
+      margin-top: 10px;
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Schematic → Layout Practice Quiz</h1>
+  <div class="subtitle">
+    63 questions from your PDF. Random order on each load. Each card shows the <strong>original question number</strong>.
+  </div>
+
+  <div class="controls">
+    <button id="checkBtn">Check Answers</button>
+    <button id="resetBtn">Reset</button>
+    <button id="reshuffleBtn">Reshuffle Questions</button>
+  </div>
+
+  <div class="count-control">
+    <label for="questionCount">Questions to display:</label>
+    <input id="questionCount" type="number" min="1" step="1" />
+    <span id="countHint"></span>
+  </div>
+
+  <div class="hint">
+    Some questions have <strong>multiple correct answers</strong> (based on your answer key). Select all that apply.
+  </div>
+
+  <div id="overallScore" class="overall-score"></div>
+
+  <div id="questionsContainer" class="questions-container"></div>
+
+  <script>
+    // =========================
+    // ANSWER KEY (from you)
+    // =========================
+    // Key = original question number, value = array of correct letters (lowercase).
+    // If you want to change any answer later – just edit here.
+    const answerKey = {
+      1: ['a'],
+      2: ['a'],
+      3: ['c'],
+      4: ['a'],
+      5: ['a', 'c'],
+      6: ['a'],
+      7: ['c'],
+      8: ['b'],
+      9: ['a'],
+      10: ['a', 'c'],
+      11: ['c'],
+      12: ['c'],
+      13: ['b'],
+      14: ['a'],
+      15: ['a'],
+      16: ['b'],
+      17: ['a'],
+      18: ['a'],
+      19: ['a'],
+      20: ['c'],
+      21: ['b'],
+      22: ['a'],
+      23: ['a', 'b', 'd'],
+      24: ['a', 'b'],
+      25: ['b'],
+      26: ['b'],
+      27: ['b'],
+      28: ['d'],
+      29: ['b'],
+      30: ['d'],
+      31: ['d'],
+      32: ['a'],
+      33: ['b'],
+      34: ['a'],
+      35: ['d'],
+      36: ['c'],
+      37: ['b'],
+      38: ['b'],
+      39: ['b'],
+      40: ['b'],
+      41: ['b'],
+      42: ['b'],
+      43: ['a'],
+      44: ['a'],
+      45: ['b'],
+      46: ['b'],
+      47: ['a'],
+      48: ['a'],
+      49: ['b'],
+      50: ['b'],
+      51: ['a'],
+      52: ['a'],
+      53: ['a'],
+      54: ['c'],
+      55: ['b'],
+      56: ['b'],
+      57: ['a'],
+      58: ['a'],
+      59: ['b'],
+      60: ['c'],
+      61: ['b'],
+      62: ['b'],
+      63: ['b']
+    };
+
+    // =========================
+    // FULL QUESTION BANK (from the PDF)
+    // =========================
+    // Only question text + options here. Correct answers are injected from answerKey above.
+    const rawQuestions = [
+      {
+        originalNumber: 1,
+        question: `What is the difference between SMD and SMT? (Page 5)`,
+        options: {
+          a: `SMD is a device, SMT is a process`,
+          b: `SMD is a process, SMT is a device`,
+          c: `Both are devices`,
+          d: `Both are processes`
+        }
+      },
+      {
+        originalNumber: 2,
+        question: `What is the maximum allowed MLCC capacitor package size in SE? (no special terminations etc.)(Page 6)`,
+        options: {
+          a: `1206`,
+          b: `1210`,
+          c: `0805`,
+          d: `0603`
+        }
+      },
+      {
+        originalNumber: 3,
+        question: `What is the maximum allowed protrusion from TH components statisfying IPC Class III?(Page 9)`,
+        options: {
+          a: `0.5`,
+          b: `1`,
+          c: `1.5`,
+          d: `2`
+        }
+      },
+      {
+        originalNumber: 4,
+        question: `What is the recommended minimum allowed protrusion according to SE production rules?(Page 9)`,
+        options: {
+          a: `0.8`,
+          b: `1`,
+          c: `1.5`,
+          d: `2`
+        }
+      },
+      {
+        originalNumber: 5,
+        question: `Which of the following are relevant ratings for 0-ohm/jumper resistors? (Multiple answers)(Page 13)`,
+        options: {
+          a: `Current`,
+          b: `Power`,
+          c: `Voltage`,
+          d: `Material`
+        }
+      },
+      {
+        originalNumber: 6,
+        question: `A 1.3kOhm resistor has a tolerance of 2% and 250ppm - what is the max possible resistance at 100C?(Page 17)`,
+        options: {
+          a: `1.35086kOhm`,
+          b: `1.326kOhm`,
+          c: `1.3kOhm`,
+          d: `1.274kOhm`
+        }
+      },
+      {
+        originalNumber: 7,
+        question: `Which of the following AGILE statuses for components allow for mass production?(Page 18)`,
+        options: {
+          a: `Samples`,
+          b: `KOKAM/JET`,
+          c: `Production`,
+          d: `Internal Use`
+        }
+      },
+      {
+        originalNumber: 8,
+        question: `What should be the temperature range for components found in inverters?(Page 25)`,
+        options: {
+          a: `-40 to 85`,
+          b: `-40 to 105`,
+          c: `-20 to 85`,
+          d: `-20 to 105`
+        }
+      },
+      {
+        originalNumber: 9,
+        question: `Given a BOM that includes the following - under what capacitor should all of them be united to? 1. 16V 100n  2. 6.3V 100n  3. 10V 100n  4. 3.3V 100n (Page 26)`,
+        options: {
+          a: `16V 100n`,
+          b: `6.3V 100n`,
+          c: `10V 100n`,
+          d: `3.3V 100n`
+        }
+      },
+      {
+        originalNumber: 10,
+        question: `What factors can affect MLCC capacitance? (Page 27)`,
+        options: {
+          a: `Voltage`,
+          b: `Current`,
+          c: `Frequency`,
+          d: `Voltage`
+        }
+      },
+      {
+        originalNumber: 11,
+        question: `Which of the MLCC dielectrics has no changes in capacitance from aging? (Page 28)`,
+        options: {
+          a: `X7R`,
+          b: `X5R`,
+          c: `C0G`,
+          d: `Y5R`
+        }
+      },
+      {
+        originalNumber: 12,
+        question: `Which of the MLCC dielectrics has no changes in capacitance from voltage bias? (Page 27)`,
+        options: {
+          a: `X7R`,
+          b: `X5R`,
+          c: `C0G`,
+          d: `Y5R`
+        }
+      },
+      {
+        originalNumber: 13,
+        question: `What is the maximum capacitance of a 68nF capacitor at 80C (Vbias=0) given 20% tolerance and 200ppm?(Page 17)`,
+        options: {
+          a: `81.61632n`,
+          b: `82.4976n`,
+          c: `82.5792n`,
+          d: `81.82342n`
+        }
+      },
+      {
+        originalNumber: 14,
+        question: `For a gate driver circuit output that suffers high voltage pulses - which of the following resistors would be the best fit? (Page 40)`,
+        options: {
+          a: `Thick film`,
+          b: `thin film`
+        }
+      },
+      {
+        originalNumber: 15,
+        question: `Given the following graph, what is the power rating of a 1W resistor at 100C? (Approximately) (Page 41)`,
+		image: "15.png",  // since the image is in the same folder
+        options: {
+          a: `0.7`,
+          b: `0.8`,
+          c: `0.5`,
+          d: `0.25`
+        }
+      },
+      {
+        originalNumber: 16,
+        question: `True or false - a quad package opamp has more than one supply/ground in its symbol (Page 70)`,
+        options: {
+          a: `True`,
+          b: `False`
+        }
+      },
+      {
+        originalNumber: 17,
+        question: `What would be the best name for a highside FET pwm signal? (Page 77)`,
+        options: {
+          a: `PWM_BRIDGE_HIGH_SIDE`,
+          b: `PWM_BRG_HS`,
+          c: `PWM_PT_HS`,
+          d: `PT_HS_FT`
+        }
+      },
+      {
+        originalNumber: 18,
+        question: `What is a reference designator? (Page 78)`,
+        options: {
+          a: `A unique identifier for each component`,
+          b: `A nickname for my friend Des`,
+          c: `A way to identify hierarchical blocks`,
+          d: `A way to identify flat nets`
+        }
+      },
+      {
+        originalNumber: 19,
+        question: `What type is the following port: (Page 87)`,
+        image: "19.png",
+        options: {
+          a: `Input`,
+          b: `Output`,
+          c: `Bidirectional`,
+          d: `Power`
+        }
+      },
+      {
+        originalNumber: 20,
+        question: `A project is defined that contains the following blocks: DC/DC Converter, Voltage Sense, Current Sense, DC Input Filter. How many hierarchal blocks are necessary? (Page 99)`,
+        options: {
+          a: `1 to 2`,
+          b: `2 to 3`,
+          c: `3 to 4`,
+          d: `4 to 5`
+        }
+      },
+      {
+        originalNumber: 21,
+        question: `True or false - copying a hierarchal block will allow components in both blocks to have the same refdes (Page 78)`,
+        options: {
+          a: `True`,
+          b: `False`
+        }
+      },
+      {
+        originalNumber: 22,
+        question: `Which of the following best describes a schematic net vs flat net? (Page 104)`,
+        options: {
+          a: `Schematic nets describes within a schematic while flat nets describe connectivity between all hiearchal blocks`,
+          b: `Flat nets are flat on the page, schematic nets are used in schematics`,
+          c: `Schematic nets are flat on the page, flat nets describe connectivity between all hiearchal blocks`,
+          d: `They're the same`
+        }
+      },
+      {
+        originalNumber: 23,
+        question: `Which of the following are good uses for placing text on a schematic? (Multiple answers) (Page 109)`,
+        options: {
+          a: `Description of how the circuit works`,
+          b: `Calculation of the f_knee of a filter`,
+          c: `Leaving your phone number so people can call and complain`,
+          d: `Second source PNs`
+        }
+      },
+      {
+        originalNumber: 24,
+        question: `Which of the following are good uses for placing images on a schematic? (Multiple answers) (Page 114)`,
+        options: {
+          a: `Table describing different values of LDO options per SiC FET`,
+          b: `A simplified schematic of the topology`,
+          c: `Picture of the stray cat on your street`,
+          d: `Pictures of SE Offices`
+        }
+      },
+      {
+        originalNumber: 25,
+        question: `True or false: Creepage can be smaller than clearance distance (Page 119)`,
+        options: {
+          a: `True`,
+          b: `False`
+        }
+      },
+      {
+        originalNumber: 26,
+        question: `What is creepage and clearance necessary for? (Page 117)`,
+        options: {
+          a: `To reduce electromagnetic interference (EMI)`,
+          b: `To prevent electrical arcing and ensure safety in high-voltage environments`,
+          c: `To minimize the size and weight of electrical components`,
+          d: `To enhance the efficiency of power transmission`
+        }
+      },
+      {
+        originalNumber: 27,
+        question: `Given the picture above - which is clearance, and which is creepage? (Page 119)`,
+        image: "27.png",
+        options: {
+          a: `Dotted is clearance, solid is creepage`,
+          b: `Solid is clearance, dotted is creepage`
+        }
+      },
+      {
+        originalNumber: 28,
+        question: `A product is being sold in both Europe and the USA - which of the following certification bodies need to be satisfied? (Page 132)`,
+        options: {
+          a: `IPC`,
+          b: `IEC`,
+          c: `UL`,
+          d: `all the above`
+        }
+      },
+      {
+        originalNumber: 29,
+        question: `As the altitude increases - what happens to breakdown voltage? (Page 127)`,
+        options: {
+          a: `Increases`,
+          b: `Decreases`,
+          c: `Stays the same`
+        }
+      },
+      {
+        originalNumber: 30,
+        question: `Two components are pin compatible and the second can be used as a second source - what needs to be done in the schematic? (Page 147)`,
+        options: {
+          a: `Add the second component`,
+          b: `Add a text note on the schematic`,
+          c: `Add the second source in a variant in part manager`,
+          d: `B and C`
+        }
+      },
+      {
+        originalNumber: 31,
+        question: `What strategy for ATPs is recommended to satisfy both ATE and R&D requirements? (Assume low current signals) (Page 162)`,
+        options: {
+          a: `40`,
+          b: `60`,
+          c: `80`,
+          d: `60 where possible and if not, 40`
+        }
+      },
+      {
+        originalNumber: 32,
+        question: `What is the correct placement strategy for TPs and ATPs? (Page 163-164)`,
+        options: {
+          a: `ATPs bot, TP top`,
+          b: `ATP bot, TP bot`,
+          c: `ATP top, TP top`
+        }
+      },
+      {
+        originalNumber: 33,
+        question: `How much is 1mm to mil? (approx) (Page 161)`,
+        options: {
+          a: `20 mil`,
+          b: `40 mil`,
+          c: `60 mil`,
+          d: `25 mil`
+        }
+      },
+      {
+        originalNumber: 34,
+        question: `What is the motivation behind Vertical Testing in SE products? (Page 165)`,
+        options: {
+          a: `To get rid of power cables that fray and get damaged over time and to reduce setup time for testing`,
+          b: `To decrease overall ATP sizes in the schematic`,
+          c: `To make sure our inverters are limited in vertical height according to product requirements`,
+          d: `To make sure our inverters work at a certain altitude`
+        }
+      },
+      {
+        originalNumber: 35,
+        question: `For testing a 12V to 5V Buck - how many ATPs are needed in total? (assume injecting the input voltage and measuring voltages) (Page 163)`,
+        options: {
+          a: `2-3`,
+          b: `3-4`,
+          c: `4-5`,
+          d: `5-6`
+        }
+      },
+      {
+        originalNumber: 36,
+        question: `Which IPC class does SolarEdge aim to satisfy? (Page 8)`,
+        options: {
+          a: `Class I`,
+          b: `Class II`,
+          c: `Class III`,
+          d: `Class IV`
+        }
+      },
+      {
+        originalNumber: 37,
+        question: `What is the recommended temperature rating for components in an optimizer? (Page 25)`,
+        options: {
+          a: `-20C to 85C`,
+          b: `-40C to 125C`,
+          c: `0C to 100C`,
+          d: `-55C to 150C`
+        }
+      },
+      {
+        originalNumber: 38,
+        question: `What is the purpose of component derating? (Page 41)`,
+        options: {
+          a: `To increase cost`,
+          b: `To improve reliability and longevity`,
+          c: `To reduce voltage`,
+          d: `To simplify design`
+        }
+      },
+      {
+        originalNumber: 39,
+        question: `What is a hierarchical block in OrCAD? (Page 88)`,
+        options: {
+          a: `A block that contains only resistors`,
+          b: `A block that groups related circuits for clarity and modularity`,
+          c: `A block for power supply only`,
+          d: `A block for mechanical parts`
+        }
+      },
+      {
+        originalNumber: 40,
+        question: `Explain how the protrusion length of a through-hole component is determined and why it matters for IPC Class III compliance. (Page 9)`,
+        options: {
+          a: `By the component’s datasheet only`,
+          b: `By PCB thickness and IPC Class III requirements`,
+          c: `By the soldering process only`,
+          d: `By the manufacturer’s country`
+        }
+      },
+      {
+        originalNumber: 41,
+        question: `Describe the aging process of X7R MLCC capacitors and how reflow soldering affects their capacitance. (Page 28)`,
+        options: {
+          a: `Capacitance increases over time and reflow has no effect`,
+          b: `Capacitance decreases over time, reflow resets capacitance temporarily`,
+          c: `Capacitance stays constant, reflow reduces capacitance`,
+          d: `Capacitance fluctuates randomly, reflow increases capacitance`
+        }
+      },
+      {
+        originalNumber: 42,
+        question: `What is the difference between functional, basic, and reinforced insulation in European PCB certification standards? (Page 121)`,
+        options: {
+          a: `Functional is for human protection, basic for operation, reinforced for cost`,
+          b: `Functional allows operation, basic provides minimal shock protection, reinforced offers highest protection`,
+          c: `All are the same`,
+          d: `Reinforced is only for mechanical parts`
+        }
+      },
+      {
+        originalNumber: 43,
+        question: `What is the significance of the “Net Space Type” in layout design, and how is it applied? (Page 142)`,
+        options: {
+          a: `It defines minimum distances between nets for safety and certification`,
+          b: `It determines the color of nets`,
+          c: `It sets the voltage rating for components`,
+          d: `It is used only for mechanical drawings`
+        }
+      },
+      {
+        originalNumber: 44,
+        question: `Describe the process in a schematic for when two sources for a component have different footprints. (Page 146)`,
+        options: {
+          a: `Place both footprints in parallel to allow assembly flexibility`,
+          b: `Use only one footprint and ignore alternatives`,
+          c: `Place both footprints on top of each other for cost savings`,
+          d: `Use double footprints only for resistors`
+        }
+      },
+      {
+        originalNumber: 45,
+        question: `Why is it recommended to use “Snap to Grid” when placing components in a schematic? (Page 73)`,
+        options: {
+          a: `It allows for random placement`,
+          b: `It ensures consistent spacing and easier wire connections`,
+          c: `It increases design complexity`,
+          d: `It reduces schematic legibility`
+        }
+      },
+      {
+        originalNumber: 46,
+        question: `What is the best practice for naming nets in schematics? (Page 77)`,
+        options: {
+          a: `Use short, cryptic names`,
+          b: `Use clear, descriptive names`,
+          c: `Use only numbers`,
+          d: `Use duplicate names on the same page`
+        }
+      },
+      {
+        originalNumber: 47,
+        question: `What is the function of a hierarchical port in OrCAD? (Page 83)`,
+        options: {
+          a: `To connect signals between blocks (and therefore pages)`,
+          b: `To define component values`,
+          c: `To set grid size`,
+          d: `To annotate RefDes`
+        }
+      },
+      {
+        originalNumber: 48,
+        question: `Why is it important to keep net names consistent between hierarchical blocks and their ports? (Page 87)`,
+        options: {
+          a: `To simplify visual flow and prevent connection errors`,
+          b: `To increase BOM cost`,
+          c: `To reduce schematic legibility`,
+          d: `To allow for random connections`
+        }
+      },
+      {
+        originalNumber: 49,
+        question: `What is the recommended practice when placing decoupling capacitors in a schematic? (Page 26)`,
+        options: {
+          a: `Use different voltages for each`,
+          b: `Unify under the highest required voltage`,
+          c: `Use only 22uF capacitors`,
+          d: `Use only electrolytic capacitors`
+        }
+      },
+      {
+        originalNumber: 50,
+        question: `Why should you avoid abbreviating net names in schematics? (Page 77)`,
+        options: {
+          a: `To save space`,
+          b: `To ensure clarity for all users`,
+          c: `To increase design complexity`,
+          d: `To reduce BOM cost`
+        }
+      },
+      {
+        originalNumber: 51,
+        question: `What is the function of the “Create Netlist” tool in OrCAD? (Page 177)`,
+        options: {
+          a: `Export connectivity information for layout and rule checking`,
+          b: `Annotate RefDes`,
+          c: `Place ATPs`,
+          d: `Simulate the circuit`
+        }
+      },
+      {
+        originalNumber: 52,
+        question: `What is the main benefit of using buses and net aliases in complex schematics? (Page 106)`,
+        options: {
+          a: `Simplifies wiring and reduces errors`,
+          b: `Increases BOM cost`,
+          c: `Reduces design modularity`,
+          d: `Makes troubleshooting harder`
+        }
+      },
+      {
+        originalNumber: 53,
+        question: `Who are the departments required for approving a new component via MCO? (Page 43)`,
+        options: {
+          a: `Components & Q&R`,
+          b: `Components, Footprint (Avital), Q&R and R&D`,
+          c: `R&D, Q&R and Avital`,
+          d: `R&D`
+        }
+      },
+      {
+        originalNumber: 54,
+        question: `Which ATP would be the best for calibrating a currents sense circuit with 40Adc? (Page 162)`,
+        options: {
+          a: `ATP-60`,
+          b: `ATP-40`,
+          c: `2 x ATP-120`,
+          d: `ATP-80`
+        }
+      },
+      {
+        originalNumber: 55,
+        question: `Two DC/DC converters sitting physically close to one another need ATPs. One is 12V to 5V, and one is 5V to 3.3V. How many ATPs are required? (each is tested individually) (Page 163)`,
+        options: {
+          a: `10`,
+          b: `12`,
+          c: `7`,
+          d: `6`
+        }
+      },
+      {
+        originalNumber: 56,
+        question: `A DC Converter requires input capacitors. The input maximum is 500V - what is the minimum voltage rating needed? (Page 44)`,
+        options: {
+          a: `500`,
+          b: `550`,
+          c: `600`,
+          d: `650`
+        }
+      },
+      {
+        originalNumber: 57,
+        question: `What happens to creepage clearance when the Pollution degree increases? (Page 135)`,
+        options: {
+          a: `Clearance and Creepage distances increase`,
+          b: `Only creepage increases`,
+          c: `Only clearance increases`,
+          d: `Clearance and creepage distances decrease`
+        }
+      },
+      {
+        originalNumber: 58,
+        question: `For an RC Snubber, a 630V 22nF capacitor that is C0G/NP0 doesn’t exist. 10nF is the next value - what is the best course of action?`,
+        options: {
+          a: `Add two C0G/Np0 of 10nF in parallel`,
+          b: `Use 22nF X7R`,
+          c: `Use 22nF Y5R`,
+          d: `Use a film capacitor`
+        }
+      },
+      {
+        originalNumber: 59,
+        question: `When are 1210 MLCC capacitors allowed for usage at SolarEdge? (Page 6)`,
+        options: {
+          a: `If you bribe Q&R`,
+          b: `If the terminals are flex terminated`,
+          c: `If you only have less than 20 in the design`,
+          d: `Only if you have less than 10 in the design`
+        }
+      },
+      {
+        originalNumber: 60,
+        question: `What files are required to enter layout that can be extracted from the schematic? (Page 181)`,
+        options: {
+          a: `DSN Only`,
+          b: `DSN and netlist files`,
+          c: `DSN, DXF, Netlist files`,
+          d: `BRD`
+        }
+      },
+      {
+        originalNumber: 61,
+        question: `Given a creepage of 400V, 2mm and 500V 2.5mm, what is the required distance for 450V?`,
+        options: {
+          a: `2.75mm`,
+          b: `2.25mm`,
+          c: `Just use the distance for 500V`,
+          d: `Answers A and C are correct.`
+        }
+      },
+      {
+        originalNumber: 62,
+        question: `True or false - update cache needs to be run only once during a projects bring-up (Page 182)`,
+        options: {
+          a: `True`,
+          b: `False`
+        }
+      },
+      {
+        originalNumber: 63,
+        question: `What is the difference between a wire list and a netlist? (Page 84 & 177)`,
+        options: {
+          a: `A wirelist describes connectively for layout, netlist describes connectively between components`,
+          b: `A netlist describes connectively for layout, wirelist describes connectivity between components`,
+          c: `Wirelist describes whether wires are flat or schematic, netlist describes how they are connected`
+        }
+      }
+    ];
+
+    const DEFAULT_DISPLAY_COUNT = 25;
+    const maxQuestions = rawQuestions.length;
+    let displayCount = Math.min(DEFAULT_DISPLAY_COUNT, maxQuestions);
+
+    // ================
+    // QUIZ LOGIC
+    // ================
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    let questions = [];
+    let container;
+    let countInput;
+    let countHint;
+
+    function syncCountInput() {
+      if (!countInput) return;
+      countInput.max = String(maxQuestions);
+      countInput.value = displayCount;
+      if (countHint) {
+        countHint.textContent = `/ ${maxQuestions}`;
+      }
+    }
+
+    function clampDisplayCount(value) {
+      if (Number.isNaN(value)) return displayCount;
+      if (value < 1) return 1;
+      if (value > maxQuestions) return maxQuestions;
+      return value;
+    }
+
+    function getVisibleQuestions() {
+      return questions.slice(0, displayCount);
+    }
+
+    function buildQuestions() {
+      // attach correct answers from answerKey
+      const withCorrect = rawQuestions.map((q, index) => {
+        const id = q.originalNumber || (index + 1);
+        return {
+          id,
+          originalNumber: q.originalNumber,
+          question: q.question,
+          options: q.options,
+          image: q.image,
+          correct: answerKey[id] || []
+        };
+      });
+      questions = shuffle(withCorrect);
+    }
+
+    function renderQuestions() {
+      container.innerHTML = "";
+      const visibleQuestions = getVisibleQuestions();
+
+      visibleQuestions.forEach((q, idx) => {
+        const card = document.createElement("div");
+        card.className = "question-card";
+        card.dataset.qid = q.id;
+
+        const header = document.createElement("div");
+        header.className = "question-header";
+
+        const titleWrap = document.createElement("div");
+        const title = document.createElement("div");
+        title.className = "question-title";
+        title.textContent = `Question ${idx + 1} (original Q #${q.originalNumber}) – ${q.question}`;
+
+        const typeLabel = document.createElement("div");
+        typeLabel.className = "question-type";
+        if (!q.correct || q.correct.length === 0) {
+          typeLabel.textContent = "No answer configured (you can set it in answerKey if you like)";
+        } else if (q.correct.length > 1) {
+          typeLabel.textContent = "Multiple answers – select all that apply";
+        } else {
+          typeLabel.textContent = "Single answer – select one";
+        }
+
+        titleWrap.appendChild(title);
+        titleWrap.appendChild(typeLabel);
+
+        const original = document.createElement("div");
+        original.className = "question-original";
+        original.textContent = `Q #${q.originalNumber}`;
+
+        header.appendChild(titleWrap);
+        header.appendChild(original);
+
+        card.appendChild(header);
+
+        if (q.image) {
+          const imageWrap = document.createElement("div");
+          imageWrap.className = "question-image";
+
+          const img = document.createElement("img");
+          img.src = q.image;
+          img.alt = `Reference for question ${q.originalNumber}`;
+          img.onerror = () => {
+            // If image fails to load, hide the wrapper
+            imageWrap.style.display = "none";
+          };
+
+          imageWrap.appendChild(img);
+          card.appendChild(imageWrap);
+        }
+
+        const optionsDiv = document.createElement("div");
+        optionsDiv.className = "options";
+
+        Object.entries(q.options).forEach(([letter, text]) => {
+          const optDiv = document.createElement("label");
+          optDiv.className = "option";
+
+          const input = document.createElement("input");
+          input.type = "checkbox"; // works for single & multi
+          input.name = `q${q.id}`;
+          input.value = letter;
+
+          optDiv.appendChild(input);
+          optDiv.append(`${letter.toUpperCase()}) ${text}`);
+          optionsDiv.appendChild(optDiv);
+        });
+
+        const result = document.createElement("div");
+        result.className = "result";
+        result.id = `result-q${q.id}`;
+
+        card.appendChild(optionsDiv);
+        card.appendChild(result);
+
+        container.appendChild(card);
+      });
+    }
+
+    function getSelectedAnswers(q) {
+      const inputs = document.querySelectorAll(
+        `input[name="q${q.id}"]:checked`
+      );
+      return Array.from(inputs).map((i) => i.value);
+    }
+
+    function arraysEqual(a, b) {
+      if (a.length !== b.length) return false;
+      const aa = [...a].sort();
+      const bb = [...b].sort();
+      return aa.every((v, i) => v === bb[i]);
+    }
+
+    function checkAll() {
+      let answeredCount = 0;
+      let correctCount = 0;
+
+      const visibleQuestions = getVisibleQuestions();
+
+      visibleQuestions.forEach((q) => {
+        const card = document.querySelector(
+          `.question-card[data-qid="${q.id}"]`
+        );
+        const resultDiv = document.getElementById(`result-q${q.id}`);
+        const selected = getSelectedAnswers(q);
+
+        card.classList.remove("correct", "incorrect");
+        resultDiv.classList.remove("correct-text", "incorrect-text");
+
+        const correct = q.correct || [];
+
+        if (!correct || correct.length === 0) {
+          resultDiv.textContent =
+            "No answer configured in the key for this question.";
+          return;
+        }
+
+        if (selected.length === 0) {
+          resultDiv.textContent = "No answer selected.";
+          return;
+        }
+
+        answeredCount++;
+
+        if (arraysEqual(selected, correct)) {
+          card.classList.add("correct");
+          resultDiv.classList.add("correct-text");
+          resultDiv.textContent = "✔ Correct!";
+          correctCount++;
+        } else {
+          card.classList.add("incorrect");
+          resultDiv.classList.add("incorrect-text");
+          resultDiv.textContent =
+            "✘ Incorrect. Correct answer(s): " +
+            correct.map((x) => x.toUpperCase()).join(", ");
+        }
+      });
+
+      const overall = document.getElementById("overallScore");
+      overall.textContent =
+        `Score (for questions with configured answers): ${correctCount} / ${answeredCount}`;
+    }
+
+    function resetAll() {
+      document
+        .querySelectorAll('input[type="checkbox"]')
+        .forEach((i) => (i.checked = false));
+
+      document.querySelectorAll(".question-card").forEach((card) => {
+        card.classList.remove("correct", "incorrect");
+      });
+
+      document.querySelectorAll(".result").forEach((res) => {
+        res.textContent = "";
+        res.classList.remove("correct-text", "incorrect-text");
+      });
+
+      document.getElementById("overallScore").textContent = "";
+    }
+
+    function updateDisplayCountFromInput() {
+      if (!countInput) return;
+      const requested = parseInt(countInput.value, 10);
+      const nextCount = clampDisplayCount(requested);
+      displayCount = nextCount;
+      syncCountInput();
+      renderQuestions();
+      resetAll();
+    }
+
+    function reshuffle() {
+      buildQuestions();
+      renderQuestions();
+      resetAll();
+    }
+
+    document.getElementById("checkBtn").addEventListener("click", checkAll);
+    document.getElementById("resetBtn").addEventListener("click", resetAll);
+    document.getElementById("reshuffleBtn").addEventListener("click", reshuffle);
+    if (countInput) {
+      countInput.addEventListener("change", updateDisplayCountFromInput);
+      countInput.addEventListener("input", () => {
+        // lightweight live clamp without reset to keep typing smooth
+        const val = parseInt(countInput.value, 10);
+        if (!Number.isNaN(val)) {
+          countInput.value = clampDisplayCount(val);
+        }
+      });
+    }
+
+    // Wait for DOM to be ready, then initialize
+    document.addEventListener("DOMContentLoaded", () => {
+      container = document.getElementById("questionsContainer");
+      countInput = document.getElementById("questionCount");
+      countHint = document.getElementById("countHint");
+      
+      buildQuestions();
+      syncCountInput();
+      renderQuestions();
+    });
+  </script>
+</body>
+</html>
