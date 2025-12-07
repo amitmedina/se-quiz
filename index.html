@@ -201,7 +201,7 @@
       32: ['a'],
       33: ['b'],
       34: ['a'],
-      35: ['c'],
+      35: ['d'],
       36: ['c'],
       37: ['b'],
       38: ['b'],
@@ -1094,25 +1094,26 @@
       resetAll();
     }
 
-    document.getElementById("checkBtn").addEventListener("click", checkAll);
-    document.getElementById("resetBtn").addEventListener("click", resetAll);
-    document.getElementById("reshuffleBtn").addEventListener("click", reshuffle);
-    if (countInput) {
-      countInput.addEventListener("change", updateDisplayCountFromInput);
-      countInput.addEventListener("input", () => {
-        // lightweight live clamp without reset to keep typing smooth
-        const val = parseInt(countInput.value, 10);
-        if (!Number.isNaN(val)) {
-          countInput.value = clampDisplayCount(val);
-        }
-      });
-    }
-
     // Wait for DOM to be ready, then initialize
     document.addEventListener("DOMContentLoaded", () => {
       container = document.getElementById("questionsContainer");
       countInput = document.getElementById("questionCount");
       countHint = document.getElementById("countHint");
+      
+      document.getElementById("checkBtn").addEventListener("click", checkAll);
+      document.getElementById("resetBtn").addEventListener("click", resetAll);
+      document.getElementById("reshuffleBtn").addEventListener("click", reshuffle);
+      
+      if (countInput) {
+        countInput.addEventListener("change", updateDisplayCountFromInput);
+        countInput.addEventListener("input", () => {
+          // lightweight live clamp without reset to keep typing smooth
+          const val = parseInt(countInput.value, 10);
+          if (!Number.isNaN(val)) {
+            countInput.value = clampDisplayCount(val);
+          }
+        });
+      }
       
       buildQuestions();
       syncCountInput();
